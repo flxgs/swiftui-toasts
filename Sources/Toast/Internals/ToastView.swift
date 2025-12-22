@@ -5,13 +5,31 @@ internal struct ToastView: View {
   @Environment(\.colorScheme) private var colorScheme
 
   private var isDark: Bool { colorScheme == .dark }
+  private var backgroundColor: Color {
+    switch model.style {
+    case .normal:
+      return Color.toastBackground
+    case .warning:
+      return Color.orange
+    case .destructive:
+      return Color.red
+    }
+  }
+  private var textColor: Color {
+    switch model.style {
+    case .normal:
+      return .primary
+    case .warning, .destructive:
+      return .white
+    }
+  }
 
   var body: some View {
     main
       ._background {
-        Capsule().fill(Color.toastBackground)
+        Capsule().fill(backgroundColor)
       }
-      .frame(height: 48)
+      .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
       .compositingGroup()
       .shadow(color: .primary.opacity(isDark ? 0.0 : 0.1), radius: 16, y: 8.0)
   }
@@ -27,8 +45,9 @@ internal struct ToastView: View {
           .frame(width: 14)
       }
       Text(model.message)
-        .lineLimit(1)
-        .truncationMode(.tail)
+        .lineLimit(nil)
+        .fixedSize(horizontal: false, vertical: true)
+        ._foregroundColor(textColor)
         .id(model.message)
         .transition(.asymmetric(
             insertion: .opacity
