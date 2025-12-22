@@ -13,7 +13,7 @@ internal struct ToastRootView: View {
   private var main: some View {
     let isTop = manager.position == .top
     VStack(spacing: 8) {
-      if !isTop { Spacer() }
+      if !isTop { Spacer().allowsHitTesting(false) }
 
       let models = isTop ? manager.models.reversed() : manager.models
       ForEach(manager.isAppeared ? models : []) { model in
@@ -34,8 +34,9 @@ internal struct ToastRootView: View {
           )
       }
 
-      if isTop { Spacer() }
+      if isTop { Spacer().allowsHitTesting(false) }
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: isTop ? .top : .bottom)
     .animation(
       .spring(duration: removalAnimationDuration),
       value: Tuple(count: manager.models.count, isAppeared: manager.isAppeared)

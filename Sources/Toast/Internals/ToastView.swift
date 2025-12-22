@@ -29,7 +29,9 @@ internal struct ToastView: View {
       ._background {
         Capsule().fill(backgroundColor)
       }
-      .frame(maxWidth: .infinity, minHeight: 48, alignment: .leading)
+      // Keep the classic pill height while still allowing content to grow if needed
+      .frame(minHeight: 48, maxHeight: 120)
+      .fixedSize(horizontal: false, vertical: true)
       .compositingGroup()
       .shadow(color: .primary.opacity(isDark ? 0.0 : 0.1), radius: 16, y: 8.0)
   }
@@ -45,7 +47,7 @@ internal struct ToastView: View {
           .frame(width: 14)
       }
       Text(model.message)
-        .lineLimit(nil)
+        .lineLimit(4)
         .fixedSize(horizontal: false, vertical: true)
         ._foregroundColor(textColor)
         .id(model.message)
@@ -55,45 +57,23 @@ internal struct ToastView: View {
             removal: .opacity
                 .animation(.spring(duration: 0.3))
         ))
-      if let button = model.button {
-        buttonView(button)
-          .padding([.top, .bottom, .trailing], 10)
-      } else {
-        Color.clear
-          .frame(width: 14)
-      }
+      Color.clear
+        .frame(width: 14)
     }
     .font(.system(size: 16, weight: .medium))
-  }
-
-  private func buttonView(_ button: ToastButton) -> some View {
-    Button {
-      button.action()
-    } label: {
-      ZStack {
-        Capsule()
-          .fill(button.color.opacity(isDark ? 0.15 : 0.07))
-        Text(button.title)
-          ._foregroundColor(button.color)
-          .padding(.horizontal, 9)
-      }
-      .frame(minWidth: 64)
-      .fixedSize(horizontal: true, vertical: false)
-    }
-    .buttonStyle(.plain)
+    .padding(.vertical, 8)
   }
 }
 
 @available(iOS 17.0, *)
 #Preview {
-  let group = VStack {
+  VStack {
     ToastView(
       model: .init(
         value:
           .init(
             icon: Image(systemName: "info.circle"),
-            message: "This is a toast message",
-            button: .init(title: "Action", color: .red, action: {})
+            message: "This is a toast message"
           )
       )
     )
@@ -101,19 +81,8 @@ internal struct ToastView: View {
       model: .init(
         value:
           .init(
-            icon: Image(systemName: "info.circle"),
-            message: "This is a toast message",
-            button: .init(title: "Action", action: {})
-          )
-      )
-    )
-    ToastView(
-      model: .init(
-        value:
-          .init(
-            icon: Image(systemName: "info.circle"),
-            message: "This is a toast message",
-            button: nil
+            icon: Image(systemName: "checkmark.circle"),
+            message: "Success!"
           )
       )
     )
@@ -122,8 +91,7 @@ internal struct ToastView: View {
         value:
           .init(
             icon: nil,
-            message: "This is a toast message",
-            button: nil
+            message: "This is a message-only toast"
           )
       )
     )
@@ -131,20 +99,26 @@ internal struct ToastView: View {
       model: .init(
         value:
           .init(
-            icon: nil,
-            message: "Copied",
-            button: nil
+            icon: Image(systemName: "exclamationmark.triangle"),
+            message: "Warning toast",
+            style: .warning
           )
       )
     )
-  }
-  return VStack {
-    group
-    group
-      .padding(20)
-      .background {
-        Color.black
-      }
-      .environment(\.colorScheme, .dark)
+    ToastView(
+      model: .init(
+        value:
+          .init(
+            icon: Image(systemName: "xmark.circle"),
+            message: "Error toast",
+            style: .destructive
+          )
+      )
+    )
+    .padding(20)
+    .background {
+      Color.black
+    }
+    .environment(\.colorScheme, .dark)
   }
 }
