@@ -11,6 +11,7 @@ public enum ToastPosition {
 /// Visual style for the toast background / text color.
 public enum ToastStyle {
   case normal
+  case success
   case warning
   case destructive
 }

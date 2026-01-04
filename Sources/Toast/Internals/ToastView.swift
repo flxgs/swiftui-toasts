@@ -9,6 +9,8 @@ internal struct ToastView: View {
     switch model.style {
     case .normal:
       return Color.toastBackground
+    case .success:
+      return Color.green
     case .warning:
       return Color.orange
     case .destructive:
@@ -19,7 +21,7 @@ internal struct ToastView: View {
     switch model.style {
     case .normal:
       return .primary
-    case .warning, .destructive:
+    case .success, .warning, .destructive:
       return .white
     }
   }
@@ -42,6 +44,7 @@ internal struct ToastView: View {
         icon
           .frame(width: 19, height: 19)
           .padding(.leading, 15)
+          ._foregroundColor(textColor)
       } else {
         Color.clear
           .frame(width: 14)
