@@ -3,6 +3,7 @@ import SwiftUI
 internal struct ToastView: View {
   @ObservedObject var model: ToastModel
   @Environment(\.colorScheme) private var colorScheme
+  var onActionTapped: (() -> Void)?
 
   private var isDark: Bool { colorScheme == .dark }
   private var backgroundColor: Color {
@@ -25,6 +26,15 @@ internal struct ToastView: View {
       return .white
     }
   }
+  
+  private var actionButtonColor: Color {
+    switch model.style {
+    case .normal:
+      return .blue
+    case .success, .warning, .destructive:
+      return .white.opacity(0.9)
+    }
+  }
 
   var body: some View {
     main
@@ -44,7 +54,6 @@ internal struct ToastView: View {
         icon
           .frame(width: 19, height: 19)
           .padding(.leading, 15)
-          ._foregroundColor(textColor)
       } else {
         Color.clear
           .frame(width: 14)
@@ -60,8 +69,27 @@ internal struct ToastView: View {
             removal: .opacity
                 .animation(.spring(duration: 0.3))
         ))
-      Color.clear
-        .frame(width: 14)
+      
+      if let toastAction = model.toastAction {
+        Button(action: {
+          toastAction.action()
+          onActionTapped?()
+        }) {
+          Text(toastAction.title)
+            .font(.system(size: 14, weight: .semibold))
+            ._foregroundColor(actionButtonColor)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(
+              Capsule()
+                .fill(actionButtonColor.opacity(0.2))
+            )
+        }
+        .padding(.trailing, 12)
+      } else {
+        Color.clear
+          .frame(width: 14)
+      }
     }
     .font(.system(size: 16, weight: .medium))
     .padding(.vertical, 8)
@@ -115,6 +143,18 @@ internal struct ToastView: View {
             icon: Image(systemName: "xmark.circle"),
             message: "Error toast",
             style: .destructive
+          )
+      )
+    )
+    // Toast with action button
+    ToastView(
+      model: .init(
+        value:
+          .init(
+            icon: Image(systemName: "exclamationmark.triangle"),
+            message: "Limit reached",
+            style: .warning,
+            action: ToastAction(title: "Upgrade", action: {})
           )
       )
     )
